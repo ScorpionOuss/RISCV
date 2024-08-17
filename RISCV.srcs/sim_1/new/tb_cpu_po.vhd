@@ -52,7 +52,13 @@ architecture Behavioral of tb_cpu_po is
         we_out  : in std_logic;
         we_in   : in std_logic;
         arith_opcode: in ARITH_op_type;
-        logical_opcode: in LOGICAL_op_type
+        logical_opcode: in LOGICAL_op_type;
+         
+        -- debug
+        rs1_dbg: out w32;
+        rs2_dbg: out w32;
+        rs_logic_dbg: out w32;
+        rs_arith_dbg: out w32
     );
     end component;
     
@@ -66,6 +72,7 @@ architecture Behavioral of tb_cpu_po is
     signal s_arith_opcode: ARITH_op_type;
     signal s_logical_opcode: LOGICAL_op_type;
     
+    signal s_rs1_dbg, s_rs2_dbg, s_rs_logic_dbg, s_rs_arith_dbg: w32;
     
 begin
 
@@ -82,7 +89,12 @@ begin
         we_out => s_we_out,
         we_in => s_we_in,
         logical_opcode => s_logical_opcode,
-        arith_opcode => s_arith_opcode
+        arith_opcode => s_arith_opcode,
+        
+        rs1_dbg => s_rs1_dbg,
+        rs2_dbg => s_rs2_dbg,
+        rs_logic_dbg => s_rs_logic_dbg,
+        rs_arith_dbg => s_rs_arith_dbg
     );
     
     
@@ -111,11 +123,12 @@ begin
         wait for clk_period/4;
         
         s_rs1_in <= X"00000010";
-        s_rs2_in <= X"00000010";
+        s_rs2_in <= X"000000a0";
         s_we_in <= '1';
         wait for clk_period;
         
-        s_arith_opocde <= ALU_plus;
+        s_we_in <= '0';
+        s_arith_opcode <= ALU_plus;
         s_we_out <= '1';
         s_data_sel <= DATA_from_arith;
         wait for clk_period;
@@ -123,8 +136,10 @@ begin
         s_rs1_in <= X"FFFFFFFF";
         s_rs2_in <= X"DEADBEEF";
         s_we_in <= '1';
+        s_we_out <= '0';
         wait for clk_period;
         
+        s_we_in <= '0';
         s_logical_opcode <= LOGICAL_and;
         s_we_out <= '1';
         s_data_sel <= DATA_from_logical;
